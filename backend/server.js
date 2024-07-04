@@ -8,6 +8,7 @@ const app = express();
 const port = 5000;
 
 app.use(bodyParser.json());
+app.use(express.json());
 app.use(cors());
 
 const db = mysql.createConnection({
@@ -44,34 +45,27 @@ app.post('/signup', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-    const { email, password } = req.body;
-    const query = 'SELECT * FROM users WHERE email = ?';
-
-    db.query(query, [email], (err, results) => {
-        if (err) {
-            return res.status(500).send('Server error');
+    const sql = "SELECT *  FROM users WHERE email = ? AND password = ?";
+    const values = [
+       
+        req.body.email,
+        req.body.password
+    ]
+    db.query(sql, [values], (err, data) => {
+        if(err) {
+            return res.json("Error");
         }
+       if(data.length > 0 ) {
+        return res.json("Success");
+       }
+       else {
+        return res.json("Failed");
+       }
+    })
+})
 
-        if (results.length > 0) {
-            const user = results[0];
-            bcrypt.compare(password, user.password, (err, isMatch) => {
-                if (err) {
-                    return res.status(500).send('Server error');
-                }
 
-                if (isMatch) {
-                    res.send('Success');
-                } else {
-                    res.send('Password didn\'t match');
-                }
-            });
-        } else {
-            res.send('No record existed');
-        }
-    });
-});
-
-app.post('/google-login', (req, res) => {
+ app.post('/google-login', (req, res) => {
     const { email, name } = req.body;
     const sql = 'INSERT INTO user (email, name) VALUES (?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name)';
     db.query(sql, [email, name], (err, result) => {
@@ -82,7 +76,9 @@ app.post('/google-login', (req, res) => {
         }
         res.send('User data stored successfully');
     });
-});
+}); 
+
+
 
 app.post('/save-user-info', (req, res) => {
     const { firstName, lastName, mobileNumber, address } = req.body;

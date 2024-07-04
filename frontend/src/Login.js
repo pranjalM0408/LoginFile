@@ -17,27 +17,28 @@ function Login() {
         setValues(prev => ({ ...prev, [event.target.name]: event.target.value }));
     };
 
+    
+
     const handleSubmit = (event) => {
         event.preventDefault();
         const validationErrors = Validation(values);
         setErrors(validationErrors);
 
         if (Object.keys(validationErrors).length === 0) {
-            console.log('Submitting values: ', values);
             axios.post('http://localhost:5000/login', values)
                 .then(res => {
-                    console.log('Server response: ', res.data);
-                    if (res.data === "Success") {
-                        navigate('/home');
-                    } else {
-                        alert(res.data);
+                    if(res.data === "Success") {
+                    navigate('/home');
+                    }
+                    else{
+                      alert("No record" ); 
                     }
                 })
-                .catch(err => console.log('Error: ', err));
+                .catch(err => console.log(err));
         }
     };
 
-    const handleGoogleLoginSuccess = (response) => {
+     const handleGoogleLoginSuccess = (response) => {
         const { email, name } = response.profileObj;
 
         axios.post('http://localhost:5000/google-login', { email, name })
@@ -50,7 +51,8 @@ function Login() {
 
     const handleGoogleLoginFailure = (response) => {
         console.error('Google login failed: ', response);
-    };
+    }; 
+   
 
     return (
         <div className='d-flex justify-content-center align-items-center bg-primary vh-100'>
@@ -82,6 +84,7 @@ function Login() {
                     </div>
 
                     <button type='submit' className='btn btn-success w-100 rounded-0'>Log in</button>
+
                     <p></p>
                     <Link to="/signup" className='btn btn-default border w-100 bg-light rounded-0 text-decoration-none'>Sign up</Link>
                 </form>
@@ -89,7 +92,7 @@ function Login() {
                 <hr />
 
                 <GoogleLogin
-                    clientId="290985781285-q0t9lavgk2iq0umf1id1db0iivt0qstp.apps.googleusercontent.com"
+                 clientId="290985781285-q0t9lavgk2iq0umf1id1db0iivt0qstp.apps.googleusercontent.com"
                     buttonText='Login with Google'
                     onSuccess={handleGoogleLoginSuccess}
                     onFailure={handleGoogleLoginFailure}
